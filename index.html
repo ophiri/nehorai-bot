@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>נהוראי בוט</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="avatar.png" alt="נהוראי בוט" class="sidebar-logo">
+            <span class="sidebar-title">נהוראי בוט</span>
+        </div>
+        <button class="new-chat-btn" id="newChatBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            צ'אט חדש
+        </button>
+        <div class="chat-history" id="chatHistory">
+            <!-- Chat history items will appear here -->
+        </div>
+        <div class="sidebar-footer">
+            <span class="version-tag">v1.0 — נהוראי בוט 🤖</span>
+        </div>
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main class="main-content">
+        <!-- Mobile header -->
+        <header class="mobile-header">
+            <button class="menu-btn" id="menuBtn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <span class="header-title">נהוראי בוט</span>
+        </header>
+
+        <!-- Welcome screen (shown when no messages) -->
+        <div class="welcome-screen" id="welcomeScreen">
+            <img src="avatar.png" alt="נהוראי בוט" class="welcome-avatar">
+            <h1>שלום! אני נהוראי בוט 👋</h1>
+            <p>מה נדבר היום?</p>
+            <div class="suggestion-chips">
+                <button class="chip" data-msg="מה שלומך?">מה שלומך? 😊</button>
+                <button class="chip" data-msg="ספר לי משהו מעניין">ספר לי משהו מעניין 🧐</button>
+                <button class="chip" data-msg="תן לי טיפ">תן לי טיפ 💡</button>
+                <button class="chip" data-msg="מה דעתך על שוק ההון?">מה דעתך על שוק ההון? 📈</button>
+            </div>
+        </div>
+
+        <!-- Chat messages container -->
+        <div class="chat-container" id="chatContainer">
+            <div class="messages" id="messages">
+                <!-- Messages will appear here -->
+            </div>
+        </div>
+
+        <!-- Input area -->
+        <div class="input-area">
+            <div class="input-wrapper">
+                <textarea
+                    id="messageInput"
+                    placeholder="שלח הודעה לנהוראי..."
+                    rows="1"
+                    autofocus
+                ></textarea>
+                <button class="send-btn" id="sendBtn" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+            <span class="input-disclaimer">נהוראי בוט יכול לטעות. כדאי לבדוק מידע חשוב. 😉</span>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
