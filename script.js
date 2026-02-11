@@ -69,15 +69,26 @@ function setProMode(enabled) {
     proMode = enabled;
     document.body.classList.toggle('pro-mode', enabled);
     proModeToggle.checked = enabled;
+    proModeToggleMobile.checked = enabled;
     localStorage.setItem('nahorai_pro_mode', enabled ? '1' : '0');
 }
 
 const coffeePopup = document.getElementById('coffeePopup');
 const coffeeClose = document.getElementById('coffeeClose');
+const proModeToggleMobile = document.getElementById('proModeToggleMobile');
 
 proModeToggle.addEventListener('change', () => {
     setProMode(proModeToggle.checked);
+    proModeToggleMobile.checked = proModeToggle.checked;
     if (proModeToggle.checked) {
+        coffeePopup.classList.add('active');
+    }
+});
+
+proModeToggleMobile.addEventListener('change', () => {
+    setProMode(proModeToggleMobile.checked);
+    proModeToggle.checked = proModeToggleMobile.checked;
+    if (proModeToggleMobile.checked) {
         coffeePopup.classList.add('active');
     }
 });

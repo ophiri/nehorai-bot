@@ -448,6 +448,39 @@ textarea::placeholder {
         flex-direction: column;
         align-items: stretch;
     }
+    .mobile-pro-toggle {
+        display: flex;
+    }
+}
+
+/* ===== Mobile Pro Toggle ===== */
+.mobile-pro-toggle {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    margin-right: auto;
+    margin-left: 0;
+}
+.mobile-pro-label {
+    font-size: 12px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.toggle-sm {
+    width: 36px;
+    height: 20px;
+}
+.toggle-sm .toggle-slider::before {
+    width: 14px;
+    height: 14px;
+    right: 3px;
+    bottom: 2px;
+}
+.toggle-sm input:checked + .toggle-slider::before {
+    transform: translateX(-16px);
 }
 
 /* ===== Overlay for mobile sidebar ===== */
