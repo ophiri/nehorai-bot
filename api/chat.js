@@ -36,16 +36,22 @@ module.exports = async function handler(req, res) {
     }
 
     try {
-        const { messages, model, max_tokens, temperature } = req.body;
+        const { messages, max_tokens, temperature } = req.body;
 
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        // Azure OpenAI endpoint
+        const AZURE_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT || 'https://gpt-exp.openai.azure.com';
+        const AZURE_DEPLOYMENT = process.env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4.1';
+        const API_VERSION = '2024-08-01-preview';
+
+        const url = `${AZURE_ENDPOINT}/openai/deployments/${AZURE_DEPLOYMENT}/chat/completions?api-version=${API_VERSION}`;
+
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+                'api-key': process.env.AZURE_OPENAI_KEY,
             },
             body: JSON.stringify({
-                model: model || 'gpt-4o-mini',
                 messages: messages || [],
                 max_tokens: Math.min(max_tokens || 500, 1000),
                 temperature: temperature ?? 0.9,
