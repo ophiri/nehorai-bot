@@ -649,3 +649,21 @@ body.pro-mode .input-wrapper:focus-within {
     font-size: 11px;
     color: var(--text-muted);
 }
+
+/* ===== Coffee Popup ===== */
+.coffee-modal .coffee-emoji {
+    font-size: 56px;
+    margin-bottom: 12px;
+}
+.coffee-modal h2 {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.coffee-btn {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
