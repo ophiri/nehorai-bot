@@ -11,7 +11,7 @@ const ALLOWED_ORIGINS = [
     'http://localhost:3939',
 ];
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     const origin = req.headers.origin || '';
 
     // CORS headers
