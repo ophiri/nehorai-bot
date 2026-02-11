@@ -39,15 +39,13 @@ const chatHistory    = document.getElementById('chatHistory');
 const sidebar        = document.getElementById('sidebar');
 const menuBtn        = document.getElementById('menuBtn');
 const proModeToggle  = document.getElementById('proModeToggle');
-const apiKeyModal    = document.getElementById('apiKeyModal');
-const apiKeyInput    = document.getElementById('apiKeyInput');
-const saveApiKeyBtn  = document.getElementById('saveApiKey');
-const cancelApiKeyBtn = document.getElementById('cancelApiKey');
+
+// API proxy — served from the same Vercel domain, key is server-side only
+const PROXY_URL = '/api/chat';
 
 let chatSessions = [];
 let currentSessionId = null;
 let proMode = false;
-let openaiApiKey = localStorage.getItem('nahorai_openai_key') || '';
 
 // ============================================================
 //  Utilities
@@ -71,57 +69,15 @@ function setProMode(enabled) {
     proMode = enabled;
     document.body.classList.toggle('pro-mode', enabled);
     proModeToggle.checked = enabled;
+    localStorage.setItem('nahorai_pro_mode', enabled ? '1' : '0');
 }
 
 proModeToggle.addEventListener('change', () => {
-    if (proModeToggle.checked) {
-        // Need API key to enable pro mode
-        if (!openaiApiKey) {
-            showApiKeyModal();
-            return;
-        }
-        setProMode(true);
-    } else {
-        setProMode(false);
-    }
+    setProMode(proModeToggle.checked);
 });
 
 // ============================================================
-//  API Key Modal
-// ============================================================
-function showApiKeyModal() {
-    apiKeyInput.value = openaiApiKey;
-    apiKeyModal.classList.add('active');
-    apiKeyInput.focus();
-}
-
-function hideApiKeyModal() {
-    apiKeyModal.classList.remove('active');
-    if (!openaiApiKey) {
-        proModeToggle.checked = false;
-    }
-}
-
-saveApiKeyBtn.addEventListener('click', () => {
-    const key = apiKeyInput.value.trim();
-    if (key) {
-        openaiApiKey = key;
-        localStorage.setItem('nahorai_openai_key', key);
-        hideApiKeyModal();
-        setProMode(true);
-    }
-});
-
-cancelApiKeyBtn.addEventListener('click', () => {
-    hideApiKeyModal();
-});
-
-apiKeyInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') saveApiKeyBtn.click();
-});
-
-// ============================================================
-//  OpenAI API
+//  OpenAI API (via Cloudflare Worker proxy)
 // ============================================================
 async function getProResponse(session) {
     // Build messages array from session history
@@ -134,11 +90,10 @@ async function getProResponse(session) {
         });
     }
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch(PROXY_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${openaiApiKey}`
         },
         body: JSON.stringify({
             model: 'gpt-4o-mini',
@@ -150,12 +105,6 @@ async function getProResponse(session) {
 
     if (!response.ok) {
         const err = await response.json().catch(() => ({}));
-        if (response.status === 401) {
-            openaiApiKey = '';
-            localStorage.removeItem('nahorai_openai_key');
-            setProMode(false);
-            throw new Error('מפתח API לא תקין. נסה שוב.');
-        }
         throw new Error(err.error?.message || `שגיאה ${response.status}`);
     }
 
@@ -313,8 +262,8 @@ async function sendMessage(text) {
 
     showTypingIndicator();
 
-    if (proMode && openaiApiKey) {
-        // Pro mode — call OpenAI
+    if (proMode) {
+        // Pro mode — call OpenAI via proxy
         try {
             const session = getCurrentSession();
             const reply = await getProResponse(session);
@@ -416,7 +365,7 @@ menuBtn.addEventListener('click', openMobileSidebar);
 // ============================================================
 updateSendButton();
 
-// Restore pro mode if API key exists
-if (openaiApiKey) {
+// Restore pro mode from localStorage
+if (localStorage.getItem('nahorai_pro_mode') === '1') {
     setProMode(true);
 }
