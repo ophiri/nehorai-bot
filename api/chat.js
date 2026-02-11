@@ -39,8 +39,8 @@ module.exports = async function handler(req, res) {
         const { messages, max_tokens, temperature } = req.body;
 
         // Azure OpenAI endpoint
-        const AZURE_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT || 'https://gpt-exp.openai.azure.com';
-        const AZURE_DEPLOYMENT = process.env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4.1';
+        const AZURE_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT || 'https://ophir-open-ai.openai.azure.com';
+        const AZURE_DEPLOYMENT = process.env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4.1-mini';
         const API_VERSION = '2024-08-01-preview';
 
         const url = `${AZURE_ENDPOINT}/openai/deployments/${AZURE_DEPLOYMENT}/chat/completions?api-version=${API_VERSION}`;
