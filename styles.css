@@ -700,3 +700,15 @@ body.pro-mode .input-wrapper:focus-within {
     align-items: center;
     gap: 6px;
 }
+
+/* ===== Pro Chip ===== */
+.chip-pro {
+    background: linear-gradient(135deg, #f59e0b, #ef4444) !important;
+    color: white !important;
+    border-color: transparent !important;
+    font-weight: 600;
+}
+.chip-pro:hover {
+    background: linear-gradient(135deg, #d97706, #dc2626) !important;
+    border-color: transparent !important;
+}

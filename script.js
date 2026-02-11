@@ -356,6 +356,11 @@ newChatBtn.addEventListener('click', startNewChat);
 // Suggestion chips
 document.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('click', () => {
+        if (chip.dataset.msg === 'pro') {
+            setProMode(true);
+            coffeePopup.classList.add('active');
+            return;
+        }
         sendMessage(chip.dataset.msg);
     });
 });
