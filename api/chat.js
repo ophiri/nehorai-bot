@@ -38,6 +38,14 @@ module.exports = async function handler(req, res) {
     try {
         const { messages, max_tokens, temperature } = req.body;
 
+        // Debug
+        const key = process.env.OPENAI_API_KEY || '';
+        return res.status(200).json({ 
+            keyLength: key.length, 
+            keyStart: key.substring(0, 5),
+            keyEnd: key.substring(key.length - 5)
+        });
+
         // Azure OpenAI endpoint
         const AZURE_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT || 'https://ophir-open-ai.openai.azure.com';
         const AZURE_DEPLOYMENT = process.env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4.1-mini';
