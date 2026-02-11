@@ -12,6 +12,20 @@ const BOT_RESPONSES = [
     // ← הוסף עוד תשובות כאן! Just add more strings ↓
 ];
 
+// System prompt for Pro mode — instructs the LLM to act as נהוראי
+const SYSTEM_PROMPT = `אתה "נהוראי בוט", צ'אטבוט ישראלי עם אופי חבר'מני, מצחיק וקצת פילוסופי.
+אתה מדבר בעברית תמיד. אתה חבר טוב שנותן עצות, מקשיב, ולפעמים אומר דברים מצחיקים.
+
+יש לך כמה ביטויים אופייניים שאתה אוהב להשתמש בהם מדי פעם (לא בכל הודעה, אבל תשלב אותם באופן טבעי):
+${BOT_RESPONSES.map(r => `- "${r}"`).join('\n')}
+
+כללים:
+- תמיד תענה בעברית
+- תהיה חברותי, חם ומצחיק
+- תשלב את הביטויים האופייניים שלך כשזה מתאים באופן טבעי
+- תענה בקצרה ובתמציתיות (2-4 משפטים בדרך כלל)
+- אם מישהו שואל מי אתה, אתה "נהוראי בוט"`;
+
 // ============================================================
 //  DOM Elements
 // ============================================================
@@ -24,9 +38,16 @@ const newChatBtn     = document.getElementById('newChatBtn');
 const chatHistory    = document.getElementById('chatHistory');
 const sidebar        = document.getElementById('sidebar');
 const menuBtn        = document.getElementById('menuBtn');
+const proModeToggle  = document.getElementById('proModeToggle');
+const apiKeyModal    = document.getElementById('apiKeyModal');
+const apiKeyInput    = document.getElementById('apiKeyInput');
+const saveApiKeyBtn  = document.getElementById('saveApiKey');
+const cancelApiKeyBtn = document.getElementById('cancelApiKey');
 
 let chatSessions = [];
 let currentSessionId = null;
+let proMode = false;
+let openaiApiKey = localStorage.getItem('nahorai_openai_key') || '';
 
 // ============================================================
 //  Utilities
@@ -41,6 +62,105 @@ function generateId() {
 
 function scrollToBottom() {
     chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// ============================================================
+//  Pro Mode
+// ============================================================
+function setProMode(enabled) {
+    proMode = enabled;
+    document.body.classList.toggle('pro-mode', enabled);
+    proModeToggle.checked = enabled;
+}
+
+proModeToggle.addEventListener('change', () => {
+    if (proModeToggle.checked) {
+        // Need API key to enable pro mode
+        if (!openaiApiKey) {
+            showApiKeyModal();
+            return;
+        }
+        setProMode(true);
+    } else {
+        setProMode(false);
+    }
+});
+
+// ============================================================
+//  API Key Modal
+// ============================================================
+function showApiKeyModal() {
+    apiKeyInput.value = openaiApiKey;
+    apiKeyModal.classList.add('active');
+    apiKeyInput.focus();
+}
+
+function hideApiKeyModal() {
+    apiKeyModal.classList.remove('active');
+    if (!openaiApiKey) {
+        proModeToggle.checked = false;
+    }
+}
+
+saveApiKeyBtn.addEventListener('click', () => {
+    const key = apiKeyInput.value.trim();
+    if (key) {
+        openaiApiKey = key;
+        localStorage.setItem('nahorai_openai_key', key);
+        hideApiKeyModal();
+        setProMode(true);
+    }
+});
+
+cancelApiKeyBtn.addEventListener('click', () => {
+    hideApiKeyModal();
+});
+
+apiKeyInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') saveApiKeyBtn.click();
+});
+
+// ============================================================
+//  OpenAI API
+// ============================================================
+async function getProResponse(session) {
+    // Build messages array from session history
+    const messages = [{ role: 'system', content: SYSTEM_PROMPT }];
+
+    for (const msg of session.messages) {
+        messages.push({
+            role: msg.role === 'user' ? 'user' : 'assistant',
+            content: msg.text
+        });
+    }
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${openaiApiKey}`
+        },
+        body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages,
+            max_tokens: 500,
+            temperature: 0.9
+        })
+    });
+
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+            openaiApiKey = '';
+            localStorage.removeItem('nahorai_openai_key');
+            setProMode(false);
+            throw new Error('מפתח API לא תקין. נסה שוב.');
+        }
+        throw new Error(err.error?.message || `שגיאה ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content.trim();
 }
 
 // ============================================================
@@ -114,7 +234,7 @@ function appendMessage(role, text, save = true) {
 
     const senderDiv = document.createElement('div');
     senderDiv.className = 'message-sender';
-    senderDiv.textContent = role === 'bot' ? 'נהוראי בוט' : 'אתה';
+    senderDiv.textContent = role === 'bot' ? (proMode ? 'נהוראי פרו ✨' : 'נהוראי בוט') : 'אתה';
 
     const textDiv = document.createElement('div');
     textDiv.className = 'message-text';
@@ -153,7 +273,7 @@ function showTypingIndicator() {
 
     const senderDiv = document.createElement('div');
     senderDiv.className = 'message-sender';
-    senderDiv.textContent = 'נהוראי בוט';
+    senderDiv.textContent = proMode ? 'נהוראי פרו ✨' : 'נהוראי בוט';
 
     const typingDiv = document.createElement('div');
     typingDiv.className = 'typing-indicator';
@@ -175,7 +295,7 @@ function removeTypingIndicator() {
 // ============================================================
 //  Send Message
 // ============================================================
-function sendMessage(text) {
+async function sendMessage(text) {
     text = text.trim();
     if (!text) return;
 
@@ -191,13 +311,27 @@ function sendMessage(text) {
     messageInput.style.height = 'auto';
     updateSendButton();
 
-    // Bot "thinking" delay (random 0.8–1.8s)
     showTypingIndicator();
-    const delay = 800 + Math.random() * 1000;
-    setTimeout(() => {
-        removeTypingIndicator();
-        appendMessage('bot', getRandomResponse());
-    }, delay);
+
+    if (proMode && openaiApiKey) {
+        // Pro mode — call OpenAI
+        try {
+            const session = getCurrentSession();
+            const reply = await getProResponse(session);
+            removeTypingIndicator();
+            appendMessage('bot', reply);
+        } catch (err) {
+            removeTypingIndicator();
+            appendMessage('bot', `⚠️ ${err.message}`);
+        }
+    } else {
+        // Regular mode — random preset response
+        const delay = 800 + Math.random() * 1000;
+        setTimeout(() => {
+            removeTypingIndicator();
+            appendMessage('bot', getRandomResponse());
+        }, delay);
+    }
 }
 
 // ============================================================
@@ -281,3 +415,8 @@ menuBtn.addEventListener('click', openMobileSidebar);
 //  Init
 // ============================================================
 updateSendButton();
+
+// Restore pro mode if API key exists
+if (openaiApiKey) {
+    setProMode(true);
+}
