@@ -30,8 +30,8 @@ module.exports = async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // Origin check
-    if (!ALLOWED_ORIGINS.includes(origin)) {
+    // Origin check — allow same-origin (empty origin) and whitelisted origins
+    if (origin && !ALLOWED_ORIGINS.includes(origin)) {
         return res.status(403).json({ error: 'Unauthorized origin' });
     }
 
