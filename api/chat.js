@@ -38,15 +38,6 @@ module.exports = async function handler(req, res) {
     try {
         const { messages, max_tokens, temperature } = req.body;
 
-        // Debug: check if env vars are loaded
-        const apiKey = process.env.AZURE_OPENAI_KEY;
-        if (!apiKey) {
-            return res.status(500).json({ 
-                error: 'AZURE_OPENAI_KEY env var is not set',
-                envKeys: Object.keys(process.env).filter(k => k.includes('AZURE') || k.includes('OPENAI'))
-            });
-        }
-
         // Azure OpenAI endpoint
         const AZURE_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT || 'https://ophir-open-ai.openai.azure.com';
         const AZURE_DEPLOYMENT = process.env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4.1-mini';
@@ -58,7 +49,7 @@ module.exports = async function handler(req, res) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'api-key': process.env.AZURE_OPENAI_KEY,
+                'api-key': process.env.OPENAI_API_KEY,
             },
             body: JSON.stringify({
                 messages: messages || [],
