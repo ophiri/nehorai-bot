@@ -354,16 +354,38 @@ sendBtn.addEventListener('click', () => {
 newChatBtn.addEventListener('click', startNewChat);
 
 // Suggestion chips
+const proChip = document.getElementById('proChip');
+
+function updateProChip() {
+    if (proMode) {
+        proChip.textContent = 'תחזירו לי את נהוראי הרגיל 😌';
+        proChip.classList.remove('chip-pro');
+        proChip.classList.add('chip-basic');
+    } else {
+        proChip.textContent = 'אני רוצה נהוראי פרו 🚀';
+        proChip.classList.add('chip-pro');
+        proChip.classList.remove('chip-basic');
+    }
+}
+
 document.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('click', () => {
         if (chip.dataset.msg === 'pro') {
-            setProMode(true);
-            coffeePopup.classList.add('active');
+            if (proMode) {
+                setProMode(false);
+            } else {
+                setProMode(true);
+                coffeePopup.classList.add('active');
+            }
+            updateProChip();
             return;
         }
         sendMessage(chip.dataset.msg);
     });
 });
+
+// Sync chip text on load
+updateProChip();
 
 // ============================================================
 //  Mobile Sidebar
