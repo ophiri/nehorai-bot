@@ -1,6 +1,6 @@
 // ============================================================
 //  Nahorai Bot — API Proxy (Vercel Serverless Function)
-//  Your OpenAI key is stored as a Vercel environment variable
+//  Azure OpenAI key is stored as a Vercel environment variable
 //  and never exposed to the frontend.
 // ============================================================
 
