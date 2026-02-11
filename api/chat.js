@@ -37,8 +37,6 @@ module.exports = async function handler(req, res) {
 
     try {
         const { messages, max_tokens, temperature } = req.body;
-        const k = process.env.OPENAI_API_KEY || '';
-        if (req.body.debug) return res.json({ len: k.length, s: k.substring(0,4) });
 
         // Azure OpenAI endpoint
         const AZURE_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT || 'https://ophir-open-ai.openai.azure.com';
